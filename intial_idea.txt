@@ -1,0 +1,21 @@
+Upload Thing
+    Upload video return jobID
+    Resumebility
+    Chunk based upload - direclty to Cloud
+    AWS S3
+    Add to processQueue
+    Handle failure while uploading (retry mechanism)
+    [] Presigned URL or Upload via backend
+
+Process Thing
+    2k, 1080p, 720p, 480p, 320p (ffmpeg)
+    5 instance handling eaching
+    Take video from processQueue
+    Generate multi resolutions, meta info, thumbnails, (even seek thumbnails also ??)
+    Store videos to permanent location
+
+Retrieve Thing
+    DASH (Dynamic Adaptive Streaming over HTTP)
+
+
+V E C S S
