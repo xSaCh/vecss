@@ -50,6 +50,55 @@ func (repo *S3Repository) T() {
 	fmt.Printf("o: %v\n", o)
 }
 
+func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, part []int) ([]*v4.PresignedHTTPRequest, error) {
+
+	uploadInput := &s3.CreateMultipartUploadInput{
+		Bucket: aws.String("bkt"),
+		Key:    aws.String("video.mp4"),
+	}
+
+	res, err := repo.S3Client.CreateMultipartUpload(ctx, uploadInput)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("res.UploadId: %s\n", *res.UploadId)
+
+	var urls []*v4.PresignedHTTPRequest
+	for _, p := range part {
+		req, err := repo.PresignClient.PresignUploadPart(ctx, &s3.UploadPartInput{
+			Bucket:     aws.String("bkt"),
+			Key:        aws.String("video.mp4"),
+			UploadId:   res.UploadId,
+			PartNumber: aws.Int32(int32(p)),
+		}, func(options *s3.PresignOptions) {
+			options.Expires = time.Duration(15 * int64(time.Minute))
+		})
+		if err != nil {
+			return nil, err
+		}
+		urls = append(urls, req)
+	}
+	return urls, nil
+}
+
+func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, uploadId string, etags []string, partnumbers []int) error {
+	var parts []types.CompletedPart
+	for i, etag := range etags {
+		parts = append(parts, types.CompletedPart{
+			ETag:       aws.String(etag),
+			PartNumber: aws.Int32(int32(partnumbers[i])),
+		})
+	}
+	_, err := repo.S3Client.CompleteMultipartUpload(ctx, &s3.CompleteMultipartUploadInput{
+		Bucket:          aws.String("bkt"),
+		Key:             aws.String("video.mp4"),
+		UploadId:        aws.String(uploadId),
+		MultipartUpload: &types.CompletedMultipartUpload{Parts: parts},
+	})
+	return err
+}
+
 // GetObject makes a presigned request that can be used to get an object from a bucket.
 // The presigned request is valid for the specified number of seconds.
 func (repo *S3Repository) GetObject(

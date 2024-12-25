@@ -7,7 +7,7 @@ import (
 
 type RepositoryFactory struct{}
 
-func (f *RepositoryFactory) NewStorageRepository() Storage {
+func (f *RepositoryFactory) NewStorageRepository() *aws.S3Repository {
 	s3client := &aws.S3Repository{
 		S3Client: s3.NewFromConfig(*aws.AwsConfig(), func(o *s3.Options) {
 			o.UsePathStyle = true
