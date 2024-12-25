@@ -1,0 +1,12 @@
+Upload
+    UploadID
+    UserID
+
+    Filename
+    FileSize
+    FileType
+    Status
+    StorageURL
+
+    CreateAt
+    UpdateAt

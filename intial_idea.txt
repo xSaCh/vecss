@@ -1,5 +1,5 @@
 Upload Thing
-    Upload video return jobID
+    After Uploaded video return jobID
     Resumebility
     Chunk based upload - direclty to Cloud
     AWS S3
