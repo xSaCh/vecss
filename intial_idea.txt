@@ -19,3 +19,65 @@ Retrieve Thing
 
 
 V E C S S
+
+
+
+------- CHATGPT
+project-root/
+│
+├── common/                     # Common shared resources across microservices
+│   ├── models/                 # Common models shared across services
+│   ├── utils/                  # Utility functions
+│   ├── config/                 # Configuration management (e.g., AWS, RabbitMQ)
+│   ├── errors/                 # Custom error definitions
+│   └── logger/                 # Centralized logging utilities
+│
+├── service-one/                # First microservice
+│   ├── cmd/                    # Entry point for the microservice
+│   │   └── main.go             # Main function
+│   ├── internal/               # Internal package (not shared with other services)
+│   │   ├── handlers/           # HTTP handlers
+│   │   ├── services/           # Business logic
+│   │   ├── repositories/       # Interactions with AWS (e.g., DynamoDB, S3)
+│   │   ├── mq/                 # RabbitMQ producer/consumer logic
+│   │   └── utils/              # Service-specific utilities
+│   ├── config/                 # Service-specific configurations
+│   └── tests/                  # Unit and integration tests
+│
+├── service-two/                # Second microservice
+│   ├── cmd/
+│   │   └── main.go
+│   ├── internal/
+│   │   ├── handlers/
+│   │   ├── services/
+│   │   ├── repositories/
+│   │   ├── mq/
+│   │   └── utils/
+│   ├── config/
+│   └── tests/
+│
+├── service-three/              # Third microservice
+│   ├── cmd/
+│   │   └── main.go
+│   ├── internal/
+│   │   ├── handlers/
+│   │   ├── services/
+│   │   ├── repositories/
+│   │   ├── mq/
+│   │   └── utils/
+│   ├── config/
+│   └── tests/
+│
+├── build/                      # CI/CD-related scripts
+│   ├── Dockerfile.service-one  # Dockerfile for service one
+│   ├── Dockerfile.service-two
+│   ├── Dockerfile.service-three
+│   ├── docker-compose.yml      # Compose file for local development/testing
+│   └── scripts/                # Build and deploy scripts
+│
+├── docs/                       # Documentation
+│   ├── service-one/            # Documentation specific to service one
+│   ├── service-two/
+│   └── service-three/
+│
+└── Makefile                    # Task automation (e.g., build, test, run)

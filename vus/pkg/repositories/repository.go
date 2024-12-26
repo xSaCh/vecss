@@ -7,13 +7,18 @@ import (
 
 type RepositoryFactory struct{}
 
-func (f *RepositoryFactory) NewStorageRepository() *aws.S3Repository {
-	s3client := &aws.S3Repository{
+func (f *RepositoryFactory) NewStorageRepository() Storage {
+	s3client := aws.S3Repository{
 		S3Client: s3.NewFromConfig(*aws.AwsConfig(), func(o *s3.Options) {
 			o.UsePathStyle = true
 		}),
 	}
 	s3client.PresignClient = s3.NewPresignClient(s3client.S3Client)
 
-	return s3client
+	err := s3client.HandleBucket()
+	if err != nil {
+		return nil
+	}
+
+	return &s3client
 }
