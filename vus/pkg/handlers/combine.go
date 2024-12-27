@@ -15,7 +15,7 @@ func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 
 	err = h.storage.CombineMultiPartUploads(r.Context(), cbn)
 	if err != nil {
-		return fmt.Errorf("error combining multi-part uploads: %w", err)
+		return err
 	}
 
 	return common.WriteJSON(w, http.StatusOK, map[string]string{"msg": "upload completed"})

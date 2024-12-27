@@ -59,7 +59,9 @@ func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, ke
 		Key:    aws.String(key),
 	})
 	if err != nil {
-		return nil, err
+		rerr := AwsReturnError(&err)
+		log.Printf("[Error] %v\n", rerr)
+		return nil, rerr
 	}
 
 	output := common.MultiPartUrls{
@@ -82,7 +84,9 @@ func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, ke
 			options.Expires = AWS_PRESIGN_EXPIRATION_MINTUES * time.Minute
 		})
 		if err != nil {
-			return nil, err
+			rerr := AwsReturnError(&err)
+			log.Printf("[Error] %v\n", rerr)
+			return nil, rerr
 		}
 		urls = append(urls, req)
 	}
@@ -108,7 +112,14 @@ func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, input com
 		Key:             aws.String(input.Key),
 		MultipartUpload: &types.CompletedMultipartUpload{Parts: parts},
 	})
-	return err
+
+	if err != nil {
+		rerr := AwsReturnError(&err)
+		log.Printf("[Error] %v\n", rerr)
+		return rerr
+	}
+
+	return nil
 }
 
 func (repo *S3Repository) HandleBucket() error {

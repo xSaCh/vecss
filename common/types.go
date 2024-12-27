@@ -3,10 +3,11 @@ package common
 import "time"
 
 type MultiPartUrls struct {
-	UploadId string    `json:"upload_id"`
-	Urls     []string  `json:"urls"`
-	CreateAt time.Time `json:"create_at"`
-	ExpireAt time.Time `json:"expire_at"`
+	UploadId  string    `json:"upload_id"`
+	Urls      []string  `json:"urls"`
+	ChunkSize int       `json:"chunk_size"`
+	CreateAt  time.Time `json:"create_at"`
+	ExpireAt  time.Time `json:"expire_at"`
 }
 
 type CompleteMultiPartUpload struct {

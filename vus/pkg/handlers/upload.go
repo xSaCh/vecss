@@ -9,6 +9,8 @@ import (
 	"github.com/xSaCh/vecss/vus/pkg/repositories"
 )
 
+const CHUNK_SIZE = 15 * 1024 * 1024
+
 type Handler struct {
 	storage repositories.Storage
 }
@@ -36,7 +38,7 @@ func (h *Handler) uploadFile(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("file size is 0")
 	}
 
-	numofParts := hdr.Size/(5*1024*1024) + 1
+	numofParts := (hdr.Size / CHUNK_SIZE) + 1
 	parts := make([]int, numofParts)
 	for i := 0; i < int(numofParts); i++ {
 		parts[i] = i + 1
@@ -49,7 +51,7 @@ func (h *Handler) uploadFile(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return fmt.Errorf("error generating pre-signed urls: %w", err)
 	}
-
+	urls.ChunkSize = CHUNK_SIZE
 	return common.WriteJSON(w, http.StatusOK, urls)
 
 }
