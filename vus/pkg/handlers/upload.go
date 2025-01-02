@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/xSaCh/vecss/vus/pkg/mq"
 	"github.com/xSaCh/vecss/vus/pkg/repositories"
 )
 
@@ -13,9 +14,12 @@ const CHUNK_SIZE = 15 * 1024 * 1024
 
 type Handler struct {
 	storage repositories.Storage
+	emitter mq.Emitter
 }
 
-func NewHandler(storage repositories.Storage) *Handler { return &Handler{storage: storage} }
+func NewHandler(storage repositories.Storage, emitter mq.Emitter) *Handler {
+	return &Handler{storage: storage, emitter: emitter}
+}
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/upload/", common.MakeHTTPHandleFunc(h.uploadGet)).Methods(http.MethodGet)

@@ -18,6 +18,19 @@ func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return common.WriteJSON(w, http.StatusOK, map[string]string{"msg": "upload completed"})
+	//TODO: Add Meta Data to DB
+	//TODO: Create Task for messageQueue
+	task := common.MqTask{
+		UploadId:    cbn.UploadId,
+		Key:         cbn.Key,
+		Resolutions: []string{"1080p", "720p", "480p"},
+		Thumbnail:   true,
+	}
+	err = h.emitter.Push(r.Context(), task)
+
+	if err != nil {
+		return err
+	}
+	return common.WriteJSON(w, http.StatusOK, map[string]string{"msg": "upload completed", "status": "pending"})
 
 }

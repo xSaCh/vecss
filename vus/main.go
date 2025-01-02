@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/xSaCh/vecss/vus/pkg"
+	"github.com/xSaCh/vecss/vus/pkg/mq"
 	"github.com/xSaCh/vecss/vus/pkg/repositories"
 )
 
@@ -39,7 +40,16 @@ import (
 
 func main() {
 	fac := repositories.RepositoryFactory{}
-	server := pkg.NewAPIServer(":8080", fac.NewStorageRepository())
+	emitter, err := mq.NewRabbitMqEmitter("guest", "guest", "localhost")
+
+	if err != nil {
+		panic(err)
+	}
+	defer emitter.Connection.Close()
+	emitter.Setup()
+
+	s := fac.NewStorageRepository()
+	server := pkg.NewAPIServer(":8080", s, emitter)
 	server.Run()
 
 }
