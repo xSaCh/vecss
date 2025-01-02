@@ -20,3 +20,10 @@ type CompleteMultiPartUpload struct {
 type ReqUploadFile struct {
 	FileName string `json:"file_name"`
 }
+
+type MqTask struct {
+	UploadId    string   `json:"upload_id"`
+	Key         string   `json:"key"`
+	Resolutions []string `json:"resolutions"`
+	Thumbnail   bool     `json:"thumbnail"`
+}
