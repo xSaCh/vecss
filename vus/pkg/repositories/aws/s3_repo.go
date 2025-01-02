@@ -22,6 +22,15 @@ type S3Repository struct {
 
 func (repo *S3Repository) T() {
 
+	ott, err := repo.PresignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
+		Bucket: aws.String("bkt"),
+		Key:    aws.String("b"),
+	})
+	if err != nil {
+		fmt.Printf("err.Error(): %v\n", err.Error())
+	}
+	fmt.Printf("url: %v\n", ott.URL)
+	return
 	name := "bkt"
 	o, err := repo.S3Client.CreateBucket(context.TODO(), &s3.CreateBucketInput{
 		Bucket: aws.String(name),
