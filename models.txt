@@ -1,5 +1,5 @@
 Upload
-    UploadID
+    UploadID - TaskID
     UserID
 
     Filename
