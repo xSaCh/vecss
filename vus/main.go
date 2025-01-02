@@ -1,8 +1,9 @@
 package main
 
 import (
+	"common/mq"
+
 	"github.com/xSaCh/vecss/vus/pkg"
-	"github.com/xSaCh/vecss/vus/pkg/mq"
 	"github.com/xSaCh/vecss/vus/pkg/repositories"
 )
 

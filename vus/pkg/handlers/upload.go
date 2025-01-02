@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"common/mq"
+
 	"github.com/gorilla/mux"
-	"github.com/xSaCh/vecss/vus/pkg/mq"
 	"github.com/xSaCh/vecss/vus/pkg/repositories"
 )
 
