@@ -1,0 +1,4 @@
+package vts
+
+func Transcode() {
+}
