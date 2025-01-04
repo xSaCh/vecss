@@ -28,7 +28,7 @@ func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 		UploadId:    cbn.UploadId,
 		Key:         cbn.Key,
 		Url:         url,
-		Resolutions: []string{"1080p", "720p", "480p"},
+		Resolutions: []int{1080, 720, 480},
 		Thumbnail:   true,
 	}
 	err = h.emitter.Push(r.Context(), task)
