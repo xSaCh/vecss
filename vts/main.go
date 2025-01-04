@@ -16,9 +16,9 @@ func main() {
 	defer emitter.Connection.Close()
 	emitter.Setup()
 
-	con := vts.Consumer{
-		Rbmq: emitter,
-	}
+	t := vts.FFMpegTranscoder{}
+	con := vts.NewConsumer(emitter, &t)
+
 	con.Listen(context.TODO())
 
 }
