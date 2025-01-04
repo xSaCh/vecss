@@ -131,6 +131,22 @@ func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, input com
 	return nil
 }
 
+func (repo *S3Repository) GetObjecPresigntUrl(ctx context.Context, key string) (string, error) {
+
+	res, err := repo.PresignClient.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(AWS_BUCKET),
+		Key:    aws.String(key),
+	})
+
+	if err != nil {
+		rerr := AwsReturnError(&err)
+		log.Printf("[Error] %v\n", rerr)
+		return "", rerr
+	}
+
+	return res.URL, nil
+}
+
 func (repo *S3Repository) HandleBucket() error {
 
 	_, err := repo.S3Client.CreateBucket(context.TODO(), &s3.CreateBucketInput{

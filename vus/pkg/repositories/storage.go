@@ -12,4 +12,5 @@ type Storage interface {
 	T()
 	GenerateMultiPartPreSignedUrls(ctx context.Context, key string, part []int) (*common.MultiPartUrls, error)
 	CombineMultiPartUploads(ctx context.Context, input common.CompleteMultiPartUpload) error
+	GetObjecPresigntUrl(ctx context.Context, key string) (string, error)
 }

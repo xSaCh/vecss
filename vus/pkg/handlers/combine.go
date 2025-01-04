@@ -18,11 +18,16 @@ func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	url, err := h.storage.GetObjecPresigntUrl(r.Context(), cbn.Key)
+	if err != nil {
+		return err
+	}
 	//TODO: Add Meta Data to DB
 	//TODO: Create Task for messageQueue
 	task := common.MqTask{
 		UploadId:    cbn.UploadId,
 		Key:         cbn.Key,
+		Url:         url,
 		Resolutions: []string{"1080p", "720p", "480p"},
 		Thumbnail:   true,
 	}
