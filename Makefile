@@ -7,8 +7,11 @@ run_s3mock:
 	docker rm -f $(shell docker ps -aq --filter "name=vecss_s3mock")
 	docker run -d -p $(PORT):9090 -p 9191:9191 -e initialBuckets=bkt --name vecss_s3mock -t adobe/s3mock
 
+run_mq:
+	docker run -d -p 5672:5672 -p 15672:15672 --name vecss_mq rabbitmq:management-alpine
+
 start_s3mock:
 	docker start vecss_s3mock
 
-.PHONY: run_s3proxy run_s3mock start_s3mock
+.PHONY: run_s3proxy run_s3mock start_s3mock run_mq
 
