@@ -59,7 +59,7 @@ func (c *Consumer) Listen(ctx context.Context) error {
 				}
 				log.Println("[Debug] Transcoded finish")
 
-				// task.Ack(false)
+				task.Ack(false)
 			}()
 		}
 	}()
