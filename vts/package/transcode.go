@@ -10,28 +10,31 @@ import (
 )
 
 type Transcoder interface {
-	Transcode(task common.MqTask) error
+	Transcode(task common.MqTask) ([]string, error)
 }
 
 type FFMpegTranscoder struct {
 }
 
-func (t *FFMpegTranscoder) Transcode(task common.MqTask) error {
+func (t *FFMpegTranscoder) Transcode(task common.MqTask) ([]string, error) {
 	var wg sync.WaitGroup
+	paths := []string{}
 	for _, resln := range task.Resolutions {
 		wg.Add(1)
 		go func() error {
 			defer wg.Done()
 			log.Printf("[Debug] compressing %s with resolution %d\n", task.Key, resln)
+
 			err := t.compress(task.Key, fmt.Sprintf("%s_%d.mp4", task.Key, resln), resln)
 			if err != nil {
 				return err
 			}
+			paths = append(paths, fmt.Sprintf("%s_%d.mp4", task.Key, resln))
 			return nil
 		}()
 	}
 	wg.Wait()
-	return nil
+	return paths, nil
 }
 
 func (t *FFMpegTranscoder) compress(inpFile, outFile string, resolution int) error {

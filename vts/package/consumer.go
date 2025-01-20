@@ -10,16 +10,20 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/xSaCh/vecss/vts/package/aws"
 )
 
 type Consumer struct {
 	Rbmq       *mq.RabbitMq
 	Transcoder Transcoder
+	S3Client   *aws.S3Repository
 }
 
-func NewConsumer(rbmq *mq.RabbitMq, transcoder Transcoder) *Consumer {
+func NewConsumer(rbmq *mq.RabbitMq, transcoder Transcoder, S3Client *aws.S3Repository) *Consumer {
 	c := Consumer{
-		Rbmq: rbmq,
+		Rbmq:     rbmq,
+		S3Client: S3Client,
 	}
 	err := c.Rbmq.Channel.Qos(
 		1,     // prefetch count
@@ -52,12 +56,24 @@ func (c *Consumer) Listen(ctx context.Context) error {
 			log.Println("[Debug] downloaded file")
 
 			go func() {
-				err := c.Transcoder.Transcode(mqTask)
+				paths, err := c.Transcoder.Transcode(mqTask)
 				if err != nil {
 					log.Printf("Error while transcoding : %s\n", err)
+					task.Nack(false, true)
 					return
 				}
 				log.Println("[Debug] Transcoded finish")
+
+				for _, p := range paths {
+
+					err = c.S3Client.PutObject(ctx, p)
+					if err != nil {
+						log.Printf("Error while uploading %s : %s\n", p, err)
+						task.Nack(false, true)
+						return
+					}
+				}
+				log.Println("[Debug] Uploading finish")
 
 				task.Ack(false)
 			}()
