@@ -36,8 +36,8 @@
 3. **Run Servers:**
    - Start each server using:
      ```bash
-     go run vus/vus.go
-     go run vts/vts.go
+     go run vus/main.go
+     go run vts/main.go
      ```
 
 ## Usage
