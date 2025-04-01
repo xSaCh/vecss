@@ -1,6 +1,6 @@
 # VECSS
 
-**Video Transpiling Streaming System (VECSS)** demonstrates a distributed system for efficient video processing by utilizing modular servers. The system is organized as follows:
+**Video Transcoding Streaming System (VECSS)** demonstrates a distributed system for efficient video processing by utilizing modular servers. The system is organized as follows:
 
 - **VUS (Upload Server):**
   - Handles all upload-related operations.
@@ -9,7 +9,7 @@
 
 - **VTS (Transpiling Worker Server):**
   - Acts as a worker server group that picks up video transcoding tasks from the messaging queue (RabbitMQ).
-  - Requires FFMPEG to be installed for processing videos.
+  - Requires FFMPEG to be installed for transcoding videos into multiple resolution.
 
 - **(IN PROGRESS) VSS (Streaming Server):**
   - Manages all streaming-related functionalities for processed videos.
