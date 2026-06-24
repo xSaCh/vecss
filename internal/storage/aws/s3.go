@@ -21,6 +21,16 @@ type S3Repository struct {
 	PresignClient *s3.PresignClient
 }
 
+func NewS3Repository() *S3Repository {
+	s3client := S3Repository{
+		S3Client: s3.NewFromConfig(*AwsConfig(), func(o *s3.Options) {
+			o.UsePathStyle = true
+		}),
+	}
+	s3client.PresignClient = s3.NewPresignClient(s3client.S3Client)
+	return &s3client
+}
+
 func (repo *S3Repository) PutObject(ctx context.Context, filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {

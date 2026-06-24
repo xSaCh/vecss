@@ -6,8 +6,7 @@ import (
 	"vecss/internal/common"
 
 	"vecss/internal/mq"
-
-	"vecss/internal/vus/pkg/repositories"
+	"vecss/internal/storage"
 
 	"github.com/gorilla/mux"
 )
@@ -15,11 +14,11 @@ import (
 const CHUNK_SIZE = 15 * 1024 * 1024
 
 type Handler struct {
-	storage repositories.Storage
+	storage storage.Storage
 	emitter mq.Emitter
 }
 
-func NewHandler(storage repositories.Storage, emitter mq.Emitter) *Handler {
+func NewHandler(storage storage.Storage, emitter mq.Emitter) *Handler {
 	return &Handler{storage: storage, emitter: emitter}
 }
 

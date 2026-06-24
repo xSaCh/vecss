@@ -5,20 +5,20 @@ import (
 	"net/http"
 
 	"vecss/internal/mq"
+	"vecss/internal/storage"
 
 	"vecss/internal/vus/pkg/handlers"
-	"vecss/internal/vus/pkg/repositories"
 
 	"github.com/gorilla/mux"
 )
 
 type APIServer struct {
 	addr    string
-	storage repositories.Storage
+	storage storage.Storage
 	emitter mq.Emitter
 }
 
-func NewAPIServer(addr string, storage repositories.Storage, emitter mq.Emitter) *APIServer {
+func NewAPIServer(addr string, storage storage.Storage, emitter mq.Emitter) *APIServer {
 	return &APIServer{
 		addr:    addr,
 		storage: storage,
