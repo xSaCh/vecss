@@ -10,7 +10,6 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/stretchr/testify v1.11.1
-	github.com/xSaCh/vecss/vus v0.0.0-20250401183808-00d23751349d
 )
 
 require (
