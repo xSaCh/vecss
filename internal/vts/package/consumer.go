@@ -9,18 +9,18 @@ import (
 	"net/http"
 	"os"
 	"vecss/internal/mq"
+	"vecss/internal/storage"
 
 	"vecss/internal/domain"
-	"vecss/internal/vts/package/aws"
 )
 
 type Consumer struct {
 	Rbmq       *mq.RabbitMq
 	Transcoder Transcoder
-	S3Client   *aws.S3Repository
+	S3Client   storage.Storage
 }
 
-func NewConsumer(rbmq *mq.RabbitMq, transcoder Transcoder, S3Client *aws.S3Repository) *Consumer {
+func NewConsumer(rbmq *mq.RabbitMq, transcoder Transcoder, S3Client storage.Storage) *Consumer {
 	c := Consumer{
 		Rbmq:     rbmq,
 		S3Client: S3Client,

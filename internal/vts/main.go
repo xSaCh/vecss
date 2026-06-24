@@ -6,7 +6,7 @@ import (
 
 	vts "vecss/internal/vts/package"
 
-	"vecss/internal/vts/package/aws"
+	storageaws "vecss/internal/storage/aws"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
@@ -20,8 +20,8 @@ func main() {
 	defer emitter.Connection.Close()
 	emitter.Setup()
 
-	s3client := aws.S3Repository{
-		S3Client: s3.NewFromConfig(*aws.AwsConfig(), func(o *s3.Options) {
+	s3client := storageaws.S3Repository{
+		S3Client: s3.NewFromConfig(*storageaws.AwsConfig(), func(o *s3.Options) {
 			o.UsePathStyle = true
 		}),
 	}

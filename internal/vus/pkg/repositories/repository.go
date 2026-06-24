@@ -1,16 +1,17 @@
 package repositories
 
 import (
-	"vecss/internal/vus/pkg/repositories/aws"
+	"vecss/internal/storage"
+	storageaws "vecss/internal/storage/aws"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type RepositoryFactory struct{}
 
-func (f *RepositoryFactory) NewStorageRepository() Storage {
-	s3client := aws.S3Repository{
-		S3Client: s3.NewFromConfig(*aws.AwsConfig(), func(o *s3.Options) {
+func (f *RepositoryFactory) NewStorageRepository() storage.Storage {
+	s3client := storageaws.S3Repository{
+		S3Client: s3.NewFromConfig(*storageaws.AwsConfig(), func(o *s3.Options) {
 			o.UsePathStyle = true
 		}),
 	}
