@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"vecss/internal/common/mq"
+	"vecss/internal/mq"
 
 	"vecss/internal/domain"
 	"vecss/internal/vts/package/aws"

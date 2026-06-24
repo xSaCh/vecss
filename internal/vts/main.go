@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"vecss/internal/common/mq"
+	"vecss/internal/mq"
 
 	vts "vecss/internal/vts/package"
 

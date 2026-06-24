@@ -1,7 +1,7 @@
 package main
 
 import (
-	"vecss/internal/common/mq"
+	"vecss/internal/mq"
 
 	"vecss/internal/vus/pkg"
 	"vecss/internal/vus/pkg/repositories"

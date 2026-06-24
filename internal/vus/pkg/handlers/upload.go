@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"vecss/internal/common"
 
-	"vecss/internal/common/mq"
+	"vecss/internal/mq"
 
 	"vecss/internal/vus/pkg/repositories"
 
