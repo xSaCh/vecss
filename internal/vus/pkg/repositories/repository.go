@@ -1,8 +1,9 @@
 package repositories
 
 import (
+	"vecss/internal/vus/pkg/repositories/aws"
+
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/xSaCh/vecss/vus/pkg/repositories/aws"
 )
 
 type RepositoryFactory struct{}

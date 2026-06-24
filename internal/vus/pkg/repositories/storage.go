@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"common"
 	"context"
+	common "vecss/internal/common"
 )
 
 type Storage interface {

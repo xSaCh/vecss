@@ -4,8 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"vecss/internal/vus/pkg/repositories"
+
 	"github.com/stretchr/testify/assert"
-	"github.com/xSaCh/vecss/vus/pkg/repositories"
 )
 
 func Test_multipartUpload(t *testing.T) {

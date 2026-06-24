@@ -1,9 +1,9 @@
 package mq
 
 import (
-	common "common"
 	"context"
 	"encoding/json"
+	common "vecss/internal/common"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )

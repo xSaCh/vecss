@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"common"
 	"fmt"
 	"net/http"
+	"vecss/internal/common"
 )
 
 func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {

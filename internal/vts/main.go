@@ -1,12 +1,14 @@
 package main
 
 import (
-	"common/mq"
 	"context"
+	"vecss/internal/common/mq"
+
+	vts "vecss/internal/vts/package"
+
+	"vecss/internal/vts/package/aws"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	vts "github.com/xSaCh/vecss/vts/package"
-	"github.com/xSaCh/vecss/vts/package/aws"
 )
 
 func main() {

@@ -2,11 +2,11 @@ package vts
 
 import (
 	"bytes"
-	"common"
 	"fmt"
 	"log"
 	"os/exec"
 	"sync"
+	"vecss/internal/common"
 )
 
 type Transcoder interface {

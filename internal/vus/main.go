@@ -1,10 +1,10 @@
 package main
 
 import (
-	"common/mq"
+	"vecss/internal/common/mq"
 
-	"github.com/xSaCh/vecss/vus/pkg"
-	"github.com/xSaCh/vecss/vus/pkg/repositories"
+	"vecss/internal/vus/pkg"
+	"vecss/internal/vus/pkg/repositories"
 )
 
 // func main() {

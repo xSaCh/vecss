@@ -4,11 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"common/mq"
+	"vecss/internal/common/mq"
+
+	"vecss/internal/vus/pkg/handlers"
+	"vecss/internal/vus/pkg/repositories"
 
 	"github.com/gorilla/mux"
-	"github.com/xSaCh/vecss/vus/pkg/handlers"
-	"github.com/xSaCh/vecss/vus/pkg/repositories"
 )
 
 type APIServer struct {

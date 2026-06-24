@@ -1,8 +1,6 @@
 package vts
 
 import (
-	"common"
-	"common/mq"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,8 +8,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"vecss/internal/common"
+	"vecss/internal/common/mq"
 
-	"github.com/xSaCh/vecss/vts/package/aws"
+	"vecss/internal/vts/package/aws"
 )
 
 type Consumer struct {

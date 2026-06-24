@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"common"
 	"fmt"
 	"net/http"
+	"vecss/internal/common"
 
-	"common/mq"
+	"vecss/internal/common/mq"
+
+	"vecss/internal/vus/pkg/repositories"
 
 	"github.com/gorilla/mux"
-	"github.com/xSaCh/vecss/vus/pkg/repositories"
 )
 
 const CHUNK_SIZE = 15 * 1024 * 1024
