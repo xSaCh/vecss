@@ -8,9 +8,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"vecss/internal/common"
 	"vecss/internal/common/mq"
 
+	"vecss/internal/domain"
 	"vecss/internal/vts/package/aws"
 )
 
@@ -47,7 +47,7 @@ func (c *Consumer) Listen(ctx context.Context) error {
 	forever := make(chan bool)
 	go func() {
 		for task := range tasks {
-			var mqTask common.MqTask
+			var mqTask domain.MqTask
 			json.Unmarshal(task.Body, &mqTask)
 			log.Printf("[Debug] starting task %v\n", mqTask)
 			if err := downloadFile(mqTask, mqTask.Key); err != nil {
@@ -83,7 +83,7 @@ func (c *Consumer) Listen(ctx context.Context) error {
 	return nil
 }
 
-func downloadFile(task common.MqTask, outputPath string) error {
+func downloadFile(task domain.MqTask, outputPath string) error {
 	res, err := http.Get(task.Url)
 	if err != nil {
 		return err

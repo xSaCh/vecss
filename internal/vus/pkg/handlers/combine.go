@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"vecss/internal/common"
+	"vecss/internal/domain"
 )
 
 func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
-	var cbn common.CompleteMultiPartUpload
+	var cbn domain.CompleteMultiPartUpload
 	err := common.ParseJSON(r, &cbn)
 	if err != nil {
 		return fmt.Errorf("error parsing request: %w", err)
@@ -24,7 +25,7 @@ func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 	}
 	//TODO: Add Meta Data to DB
 	//TODO: Create Task for messageQueue
-	task := common.MqTask{
+	task := domain.MqTask{
 		UploadId:    cbn.UploadId,
 		Key:         cbn.Key,
 		Url:         url,

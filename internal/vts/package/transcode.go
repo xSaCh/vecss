@@ -6,17 +6,17 @@ import (
 	"log"
 	"os/exec"
 	"sync"
-	"vecss/internal/common"
+	"vecss/internal/domain"
 )
 
 type Transcoder interface {
-	Transcode(task common.MqTask) ([]string, error)
+	Transcode(task domain.MqTask) ([]string, error)
 }
 
 type FFMpegTranscoder struct {
 }
 
-func (t *FFMpegTranscoder) Transcode(task common.MqTask) ([]string, error) {
+func (t *FFMpegTranscoder) Transcode(task domain.MqTask) ([]string, error) {
 	var wg sync.WaitGroup
 	paths := []string{}
 	for _, resln := range task.Resolutions {

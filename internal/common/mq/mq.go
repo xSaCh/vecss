@@ -3,14 +3,14 @@ package mq
 import (
 	"context"
 	"fmt"
-	common "vecss/internal/common"
+	"vecss/internal/domain"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type Emitter interface {
 	Setup() error
-	Push(ctx context.Context, task common.MqTask) error
+	Push(ctx context.Context, task domain.MqTask) error
 }
 
 func NewRabbitMqEmitter(username, password, url string) (*RabbitMq, error) {

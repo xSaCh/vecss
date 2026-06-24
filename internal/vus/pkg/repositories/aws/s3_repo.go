@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 
-	common "vecss/internal/common"
+	"vecss/internal/domain"
 )
 
 type S3Repository struct {
@@ -61,7 +61,7 @@ func (repo *S3Repository) T() {
 	fmt.Printf("o: %v\n", o)
 }
 
-func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, key string, part []int) (*common.MultiPartUrls, error) {
+func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, key string, part []int) (*domain.MultiPartUrls, error) {
 
 	res, err := repo.S3Client.CreateMultipartUpload(ctx, &s3.CreateMultipartUploadInput{
 		Bucket: aws.String(AWS_BUCKET),
@@ -73,7 +73,7 @@ func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, ke
 		return nil, rerr
 	}
 
-	output := common.MultiPartUrls{
+	output := domain.MultiPartUrls{
 		UploadId: *res.UploadId,
 		CreateAt: time.Now(),
 		ExpireAt: time.Now().Add(AWS_PRESIGN_EXPIRATION_MINTUES * time.Minute),
@@ -107,7 +107,7 @@ func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, ke
 	return &output, nil
 }
 
-func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, input common.CompleteMultiPartUpload) error {
+func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, input domain.CompleteMultiPartUpload) error {
 	var parts []types.CompletedPart
 	for i, etag := range input.ETags {
 		parts = append(parts, types.CompletedPart{

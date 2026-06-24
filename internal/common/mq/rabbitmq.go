@@ -3,7 +3,7 @@ package mq
 import (
 	"context"
 	"encoding/json"
-	common "vecss/internal/common"
+	"vecss/internal/domain"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -43,7 +43,7 @@ func (r *RabbitMq) Setup() error {
 	return nil
 }
 
-func (r *RabbitMq) Push(ctx context.Context, task common.MqTask) error {
+func (r *RabbitMq) Push(ctx context.Context, task domain.MqTask) error {
 	body, err := json.Marshal(task)
 	if err != nil {
 		return err
