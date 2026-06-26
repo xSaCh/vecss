@@ -40,13 +40,15 @@ func (c *Consumer) Listen(ctx context.Context) error {
 			var mqTask domain.MqTask
 			json.Unmarshal(task.Body(), &mqTask)
 			log.Printf("[Debug] starting task %v\n", mqTask)
-			if err := downloadFile(mqTask, mqTask.Key); err != nil {
+
+			downloadedFilePath, err := downloadFile(mqTask, mqTask.Key)
+			if err != nil {
 				log.Printf("Error while downloading %s %s\n", mqTask.Url, err)
 			}
-			log.Println("[Debug] downloaded file")
+			log.Printf("[Debug] downloaded file at %s\n", downloadedFilePath)
 
 			go func() {
-				paths, err := c.Transcoder.Transcode(mqTask)
+				paths, err := c.Transcoder.Transcode(mqTask, downloadedFilePath)
 				if err != nil {
 					log.Printf("Error while transcoding : %s\n", err)
 					task.Nack(true)
@@ -73,27 +75,27 @@ func (c *Consumer) Listen(ctx context.Context) error {
 	return nil
 }
 
-func downloadFile(task domain.MqTask, outputPath string) error {
+func downloadFile(task domain.MqTask, fileKey string) (string, error) {
 	res, err := http.Get(task.Url)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		return fmt.Errorf("status is %s", res.Status)
+		return "", fmt.Errorf("status is %s", res.Status)
 	}
 
-	file, err := os.Create(outputPath)
+	tempFile, err := os.CreateTemp("", fmt.Sprintf("%s-*", fileKey))
 	if err != nil {
-		return err
+		return "", err
 	}
-	defer file.Close()
+	defer tempFile.Close()
 
-	_, err = io.Copy(file, res.Body)
+	_, err = io.Copy(tempFile, res.Body)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return tempFile.Name(), nil
 }
