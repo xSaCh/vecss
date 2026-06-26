@@ -13,7 +13,7 @@ type MqMessage interface {
 	Body() []byte
 	Ack() error
 	Nack(requeue bool) error
-	Headers() map[string]interface{}
+	Headers() map[string]any
 }
 
 type Emitter interface {

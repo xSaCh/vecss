@@ -21,11 +21,6 @@ type RabbitMq struct {
 	Queue      *amqp.Queue
 }
 
-func (r *RabbitMq) Connect() (*amqp.Connection, error) {
-	// Server will manage this
-	return nil, nil
-}
-
 func (r *RabbitMq) Setup() error {
 	var err error
 	r.Channel, err = r.Connection.Channel()
