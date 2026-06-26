@@ -46,9 +46,18 @@ func (c *Consumer) Listen(ctx context.Context) error {
 				log.Printf("Error while downloading %s %s\n", mqTask.Url, err)
 			}
 			log.Printf("[Debug] downloaded file at %s\n", downloadedFilePath)
+			defer os.Remove(downloadedFilePath)
 
 			go func() {
 				paths, err := c.Transcoder.Transcode(mqTask, downloadedFilePath)
+
+				// Clean up the transcoded arifacts after processing
+				defer func() {
+					for _, p := range paths {
+						os.Remove(p)
+					}
+				}()
+
 				if err != nil {
 					log.Printf("Error while transcoding : %s\n", err)
 					task.Nack(true)
