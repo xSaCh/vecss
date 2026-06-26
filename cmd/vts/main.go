@@ -2,32 +2,39 @@ package main
 
 import (
 	"context"
+	"log"
 	"vecss/internal/mq"
 
-	vts "vecss/internal/vts/package"
+	"vecss/internal/vts"
 
 	storageaws "vecss/internal/storage/aws"
-
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func main() {
-	emitter, err := mq.NewRabbitMqEmitter("guest", "guest", "localhost")
+	rbmq, err := mq.NewRabbitMqEmitter("guest", "guest", "localhost")
 
 	if err != nil {
 		panic(err)
 	}
-	defer emitter.Connection.Close()
-	emitter.Setup()
-
-	s3client := storageaws.S3Repository{
-		S3Client: s3.NewFromConfig(*storageaws.AwsConfig(), func(o *s3.Options) {
-			o.UsePathStyle = true
-		}),
+	defer rbmq.Connection.Close()
+	if err := rbmq.Setup(); err != nil {
+		log.Fatalf("Failed to setup rabbitmq: %v", err)
+		panic(err)
 	}
 
+	if err := rbmq.Channel.Qos(
+		1,     // prefetch count
+		0,     // prefetch size
+		false, // global
+	); err != nil {
+		log.Fatalf("Failed to setup Qos: %v", err)
+		panic(err)
+	}
+
+	s3Repo := storageaws.NewS3Repository()
+
 	t := vts.FFMpegTranscoder{}
-	con := vts.NewConsumer(emitter, &t, &s3client)
+	con := vts.NewConsumer(rbmq, &t, s3Repo)
 
 	con.Listen(context.TODO())
 

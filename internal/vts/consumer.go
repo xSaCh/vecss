@@ -15,31 +15,21 @@ import (
 )
 
 type Consumer struct {
-	Rbmq       *mq.RabbitMq
+	Emitter    mq.Emitter
 	Transcoder Transcoder
-	S3Client   storage.Storage
+	Storage    storage.Storage
 }
 
-func NewConsumer(rbmq *mq.RabbitMq, transcoder Transcoder, S3Client storage.Storage) *Consumer {
-	c := Consumer{
-		Rbmq:     rbmq,
-		S3Client: S3Client,
+func NewConsumer(rbmq *mq.RabbitMq, transcoder Transcoder, storage storage.Storage) *Consumer {
+	return &Consumer{
+		Emitter:    rbmq,
+		Transcoder: transcoder,
+		Storage:    storage,
 	}
-	err := c.Rbmq.Channel.Qos(
-		1,     // prefetch count
-		0,     // prefetch size
-		false, // global
-	)
-	if err != nil {
-		return nil
-
-	}
-	c.Transcoder = transcoder
-	return &c
 }
 
 func (c *Consumer) Listen(ctx context.Context) error {
-	tasks, err := c.Rbmq.Channel.ConsumeWithContext(ctx, c.Rbmq.Queue.Name, "", false, false, false, false, nil)
+	tasks, err := c.Emitter.Consume(ctx)
 	if err != nil {
 		return err
 	}
@@ -48,7 +38,7 @@ func (c *Consumer) Listen(ctx context.Context) error {
 	go func() {
 		for task := range tasks {
 			var mqTask domain.MqTask
-			json.Unmarshal(task.Body, &mqTask)
+			json.Unmarshal(task.Body(), &mqTask)
 			log.Printf("[Debug] starting task %v\n", mqTask)
 			if err := downloadFile(mqTask, mqTask.Key); err != nil {
 				log.Printf("Error while downloading %s %s\n", mqTask.Url, err)
@@ -59,23 +49,23 @@ func (c *Consumer) Listen(ctx context.Context) error {
 				paths, err := c.Transcoder.Transcode(mqTask)
 				if err != nil {
 					log.Printf("Error while transcoding : %s\n", err)
-					task.Nack(false, true)
+					task.Nack(true)
 					return
 				}
 				log.Println("[Debug] Transcoded finish")
 
 				for _, p := range paths {
 
-					err = c.S3Client.PutObject(ctx, p)
+					err = c.Storage.PutObject(ctx, p)
 					if err != nil {
 						log.Printf("Error while uploading %s : %s\n", p, err)
-						task.Nack(false, true)
+						task.Nack(true)
 						return
 					}
 				}
 				log.Println("[Debug] Uploading finish")
 
-				task.Ack(false)
+				task.Ack()
 			}()
 		}
 	}()
