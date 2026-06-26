@@ -8,7 +8,7 @@ import (
 	"vecss/internal/mq"
 	"vecss/internal/storage"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 )
 
 const CHUNK_SIZE = 15 * 1024 * 1024
@@ -22,15 +22,11 @@ func NewHandler(storage storage.Storage, emitter mq.Emitter) *Handler {
 	return &Handler{storage: storage, emitter: emitter}
 }
 
-func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/upload/", common.MakeHTTPHandleFunc(h.uploadGet)).Methods(http.MethodGet)
-	router.HandleFunc("/upload", common.MakeHTTPHandleFunc(h.uploadGet)).Methods(http.MethodGet)
+func (h *Handler) RegisterRoutes(r chi.Router) {
+	r.Get("/upload", common.MakeHTTPHandleFunc(h.uploadGet))
+	r.Post("/upload", common.MakeHTTPHandleFunc(h.uploadFile))
 
-	router.HandleFunc("/upload/", common.MakeHTTPHandleFunc(h.uploadFile)).Methods(http.MethodPost)
-	router.HandleFunc("/upload", common.MakeHTTPHandleFunc(h.uploadFile)).Methods(http.MethodPost)
-
-	router.HandleFunc("/combine/", common.MakeHTTPHandleFunc(h.combineFile)).Methods(http.MethodPost)
-	router.HandleFunc("/combine", common.MakeHTTPHandleFunc(h.combineFile)).Methods(http.MethodPost)
+	r.Post("/combine", common.MakeHTTPHandleFunc(h.combineFile))
 }
 
 func (h *Handler) uploadFile(w http.ResponseWriter, r *http.Request) error {
