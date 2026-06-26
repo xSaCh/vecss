@@ -7,6 +7,8 @@ import (
 	"vecss/internal/domain"
 )
 
+var RESOLUTIONS = []int{1080, 720, 480}
+
 func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 	var cbn domain.CompleteMultiPartUpload
 	err := common.ParseJSON(r, &cbn)
@@ -29,7 +31,7 @@ func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 		UploadId:    cbn.UploadId,
 		Key:         cbn.Key,
 		Url:         url,
-		Resolutions: []int{1080, 720, 480},
+		Resolutions: RESOLUTIONS,
 		Thumbnail:   true,
 	}
 	err = h.emitter.Push(r.Context(), task)
