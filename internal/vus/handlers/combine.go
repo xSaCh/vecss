@@ -1,13 +1,16 @@
 package handlers
 
 import (
-	"common"
 	"fmt"
 	"net/http"
+	"vecss/internal/common"
+	"vecss/internal/domain"
 )
 
+var RESOLUTIONS = []int{1080, 720, 480}
+
 func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
-	var cbn common.CompleteMultiPartUpload
+	var cbn domain.CompleteMultiPartUpload
 	err := common.ParseJSON(r, &cbn)
 	if err != nil {
 		return fmt.Errorf("error parsing request: %w", err)
@@ -18,17 +21,17 @@ func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	url, err := h.storage.GetObjecPresigntUrl(r.Context(), cbn.Key)
+	url, err := h.storage.GetObjecPresignedUrl(r.Context(), cbn.Key)
 	if err != nil {
 		return err
 	}
 	//TODO: Add Meta Data to DB
 	//TODO: Create Task for messageQueue
-	task := common.MqTask{
+	task := domain.MqTask{
 		UploadId:    cbn.UploadId,
 		Key:         cbn.Key,
 		Url:         url,
-		Resolutions: []int{1080, 720, 480},
+		Resolutions: RESOLUTIONS,
 		Thumbnail:   true,
 	}
 	err = h.emitter.Push(r.Context(), task)

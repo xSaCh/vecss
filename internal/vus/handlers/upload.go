@@ -1,37 +1,12 @@
 package handlers
 
 import (
-	"common"
 	"fmt"
 	"net/http"
-
-	"common/mq"
-
-	"github.com/gorilla/mux"
-	"github.com/xSaCh/vecss/vus/pkg/repositories"
+	"vecss/internal/common"
 )
 
 const CHUNK_SIZE = 15 * 1024 * 1024
-
-type Handler struct {
-	storage repositories.Storage
-	emitter mq.Emitter
-}
-
-func NewHandler(storage repositories.Storage, emitter mq.Emitter) *Handler {
-	return &Handler{storage: storage, emitter: emitter}
-}
-
-func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/upload/", common.MakeHTTPHandleFunc(h.uploadGet)).Methods(http.MethodGet)
-	router.HandleFunc("/upload", common.MakeHTTPHandleFunc(h.uploadGet)).Methods(http.MethodGet)
-
-	router.HandleFunc("/upload/", common.MakeHTTPHandleFunc(h.uploadFile)).Methods(http.MethodPost)
-	router.HandleFunc("/upload", common.MakeHTTPHandleFunc(h.uploadFile)).Methods(http.MethodPost)
-
-	router.HandleFunc("/combine/", common.MakeHTTPHandleFunc(h.combineFile)).Methods(http.MethodPost)
-	router.HandleFunc("/combine", common.MakeHTTPHandleFunc(h.combineFile)).Methods(http.MethodPost)
-}
 
 func (h *Handler) uploadFile(w http.ResponseWriter, r *http.Request) error {
 	file, hdr, err := r.FormFile("file")

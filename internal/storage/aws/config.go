@@ -26,9 +26,7 @@ func AwsConfig() *aws.Config {
 func AwsReturnError(err *error) error {
 	var ae smithy.APIError
 	if errors.As(*err, &ae) {
-		// log.Printf("[Error] %v\n", ae)
 		return fmt.Errorf("%s", ae.ErrorMessage())
 	}
 	return *err
-
 }

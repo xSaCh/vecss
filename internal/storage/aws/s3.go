@@ -3,8 +3,9 @@ package aws
 import (
 	"context"
 	"errors"
-	"fmt"
+	"io"
 	"log"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -12,7 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 
-	common "common"
+	"vecss/internal/domain"
 )
 
 type S3Repository struct {
@@ -20,49 +21,33 @@ type S3Repository struct {
 	PresignClient *s3.PresignClient
 }
 
-func (repo *S3Repository) T() {
-
-	ott, err := repo.PresignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
-		Bucket: aws.String("bkt"),
-		Key:    aws.String("b"),
-	})
-	if err != nil {
-		fmt.Printf("err.Error(): %v\n", err.Error())
+func NewS3Repository() *S3Repository {
+	s3client := S3Repository{
+		S3Client: s3.NewFromConfig(*AwsConfig(), func(o *s3.Options) {
+			o.UsePathStyle = true
+		}),
 	}
-	fmt.Printf("url: %v\n", ott.URL)
-	return
-	name := "bkt"
-	o, err := repo.S3Client.CreateBucket(context.TODO(), &s3.CreateBucketInput{
-		Bucket: aws.String(name),
-		CreateBucketConfiguration: &types.CreateBucketConfiguration{
-			LocationConstraint: types.BucketLocationConstraint("us-east-1"),
-		},
-	},
-	)
-	if err != nil {
-		fmt.Printf("err.Error(): %v\n", err.Error())
-		var owned *types.BucketAlreadyOwnedByYou
-		var exists *types.BucketAlreadyExists
-		if errors.As(err, &owned) {
-			log.Printf("You already own bucket %s.\n", name)
-			err = owned
-		} else if errors.As(err, &exists) {
-			log.Printf("Bucket %s already exists.\n", name)
-			err = exists
-		}
-	} else {
-		err = s3.NewBucketExistsWaiter(repo.S3Client).Wait(
-			context.TODO(), &s3.HeadBucketInput{Bucket: aws.String(name)}, time.Minute)
-		if err != nil {
-			log.Printf("Failed attempt to wait for bucket %s to exist.\n", name)
-		}
-	}
-
-	fmt.Printf("o: %v\n", o)
+	s3client.PresignClient = s3.NewPresignClient(s3client.S3Client)
+	return &s3client
 }
 
-func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, key string, part []int) (*common.MultiPartUrls, error) {
+func (repo *S3Repository) PutObject(ctx context.Context, filePath string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	_, err = repo.S3Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(AWS_BUCKET),
+		Key:    aws.String(filePath),
+		Body:   io.ReadSeeker(file),
+	})
+	if err != nil {
+		return AwsReturnError(&err)
+	}
+	return nil
+}
 
+func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, key string, part []int) (*domain.MultiPartUrls, error) {
 	res, err := repo.S3Client.CreateMultipartUpload(ctx, &s3.CreateMultipartUploadInput{
 		Bucket: aws.String(AWS_BUCKET),
 		Key:    aws.String(key),
@@ -73,7 +58,7 @@ func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, ke
 		return nil, rerr
 	}
 
-	output := common.MultiPartUrls{
+	output := domain.MultiPartUrls{
 		UploadId: *res.UploadId,
 		CreateAt: time.Now(),
 		ExpireAt: time.Now().Add(AWS_PRESIGN_EXPIRATION_MINTUES * time.Minute),
@@ -81,7 +66,6 @@ func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, ke
 
 	log.Printf("UploadId: %s\n", output.UploadId)
 
-	// Generate presigned URLs for each part
 	var urls []*v4.PresignedHTTPRequest
 	for _, p := range part {
 		req, err := repo.PresignClient.PresignUploadPart(ctx, &s3.UploadPartInput{
@@ -107,7 +91,7 @@ func (repo *S3Repository) GenerateMultiPartPreSignedUrls(ctx context.Context, ke
 	return &output, nil
 }
 
-func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, input common.CompleteMultiPartUpload) error {
+func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, input domain.CompleteMultiPartUpload) error {
 	var parts []types.CompletedPart
 	for i, etag := range input.ETags {
 		parts = append(parts, types.CompletedPart{
@@ -131,8 +115,7 @@ func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, input com
 	return nil
 }
 
-func (repo *S3Repository) GetObjecPresigntUrl(ctx context.Context, key string) (string, error) {
-
+func (repo *S3Repository) GetObjecPresignedUrl(ctx context.Context, key string) (string, error) {
 	res, err := repo.PresignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(AWS_BUCKET),
 		Key:    aws.String(key),
@@ -148,7 +131,6 @@ func (repo *S3Repository) GetObjecPresigntUrl(ctx context.Context, key string) (
 }
 
 func (repo *S3Repository) HandleBucket() error {
-
 	_, err := repo.S3Client.CreateBucket(context.TODO(), &s3.CreateBucketInput{
 		Bucket: aws.String(AWS_BUCKET),
 		CreateBucketConfiguration: &types.CreateBucketConfiguration{
@@ -174,21 +156,4 @@ func (repo *S3Repository) HandleBucket() error {
 		}
 	}
 	return nil
-}
-
-// Makes a presigned request that can be used to put an object in a bucket.
-func (repo *S3Repository) genereatePresignObjectUrl(
-	ctx context.Context, bucketName string, objectKey string, validFor time.Duration) (string, error) {
-	request, err := repo.PresignClient.PresignPutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
-	}, func(opts *s3.PresignOptions) {
-		opts.Expires = validFor
-	})
-	if err != nil {
-		log.Printf("Couldn't get a presigned request to put %v:%v. Here's why: %v\n",
-			bucketName, objectKey, err)
-	}
-
-	return request.URL, err
 }
