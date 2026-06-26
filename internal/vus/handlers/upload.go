@@ -4,30 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"vecss/internal/common"
-
-	"vecss/internal/mq"
-	"vecss/internal/storage"
-
-	"github.com/go-chi/chi/v5"
 )
 
 const CHUNK_SIZE = 15 * 1024 * 1024
-
-type Handler struct {
-	storage storage.Storage
-	emitter mq.Emitter
-}
-
-func NewHandler(storage storage.Storage, emitter mq.Emitter) *Handler {
-	return &Handler{storage: storage, emitter: emitter}
-}
-
-func (h *Handler) RegisterRoutes(r chi.Router) {
-	r.Get("/upload", common.MakeHTTPHandleFunc(h.uploadGet))
-	r.Post("/upload", common.MakeHTTPHandleFunc(h.uploadFile))
-
-	r.Post("/combine", common.MakeHTTPHandleFunc(h.combineFile))
-}
 
 func (h *Handler) uploadFile(w http.ResponseWriter, r *http.Request) error {
 	file, hdr, err := r.FormFile("file")

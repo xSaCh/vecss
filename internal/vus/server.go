@@ -24,14 +24,14 @@ func InitRouters(storage storage.Storage, emitter mq.Emitter) http.Handler {
 	})
 
 	// Routes
-	uploadH := handlers.NewHandler(storage, emitter)
+	handler := handlers.NewHandler(storage, emitter)
 	router.Route("/", func(r chi.Router) {
 		r.Get("/", func(res http.ResponseWriter, req *http.Request) {
 			res.WriteHeader(http.StatusOK)
 			res.Write([]byte(`{"message": "okie"}`))
 		})
-		uploadH.RegisterRoutes(r)
-		//TODO: Seperate /combine here
+		handler.RegisterUploadRoutes(r)
+		handler.RegisterCombineRoute(r)
 	})
 	return router
 }
