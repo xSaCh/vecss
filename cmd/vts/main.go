@@ -10,6 +10,8 @@ import (
 	storageaws "vecss/internal/storage/aws"
 )
 
+const NUM_WORKERS = 2
+
 func main() {
 	rbmq, err := mq.NewRabbitMqEmitter("guest", "guest", "localhost")
 
@@ -23,9 +25,9 @@ func main() {
 	}
 
 	if err := rbmq.Channel.Qos(
-		1,     // prefetch count
-		0,     // prefetch size
-		false, // global
+		NUM_WORKERS, // prefetch count
+		0,           // prefetch size
+		false,       // global
 	); err != nil {
 		log.Fatalf("Failed to setup Qos: %v", err)
 		panic(err)
@@ -36,6 +38,6 @@ func main() {
 	t := vts.FFMpegTranscoder{}
 	con := vts.NewConsumer(rbmq, &t, s3Repo)
 
-	con.Listen(context.TODO())
+	con.Listen(context.TODO(), NUM_WORKERS)
 
 }

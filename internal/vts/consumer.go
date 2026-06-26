@@ -28,27 +28,28 @@ func NewConsumer(rbmq *mq.RabbitMq, transcoder Transcoder, storage storage.Stora
 	}
 }
 
-func (c *Consumer) Listen(ctx context.Context) error {
+func (c *Consumer) Listen(ctx context.Context, workerCount int) error {
 	tasks, err := c.Emitter.Consume(ctx)
 	if err != nil {
 		return err
 	}
 
 	forever := make(chan bool)
-	go func() {
-		for task := range tasks {
-			var mqTask domain.MqTask
-			json.Unmarshal(task.Body(), &mqTask)
-			log.Printf("[Debug] starting task %v\n", mqTask)
+	for range workerCount {
+		go func() {
+			for task := range tasks {
+				var mqTask domain.MqTask
+				json.Unmarshal(task.Body(), &mqTask)
+				log.Printf("[Debug] starting task %v\n", mqTask)
 
-			downloadedFilePath, err := downloadFile(mqTask, mqTask.Key)
-			if err != nil {
-				log.Printf("Error while downloading %s %s\n", mqTask.Url, err)
-			}
-			log.Printf("[Debug] downloaded file at %s\n", downloadedFilePath)
-			defer os.Remove(downloadedFilePath)
+				downloadedFilePath, err := downloadFile(mqTask, mqTask.Key)
+				if err != nil {
+					log.Printf("Error while downloading %s %s\n", mqTask.Url, err)
+				}
+				log.Printf("[Debug] downloaded file at %s\n", downloadedFilePath)
 
-			go func() {
+				defer os.Remove(downloadedFilePath)
+
 				paths, err := c.Transcoder.Transcode(mqTask, downloadedFilePath)
 
 				// Clean up the transcoded arifacts after processing
@@ -77,9 +78,9 @@ func (c *Consumer) Listen(ctx context.Context) error {
 				log.Println("[Debug] Uploading finish")
 
 				task.Ack()
-			}()
-		}
-	}()
+			}
+		}()
+	}
 	<-forever
 	return nil
 }
