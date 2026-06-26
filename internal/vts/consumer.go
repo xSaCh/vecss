@@ -34,7 +34,6 @@ func (c *Consumer) Listen(ctx context.Context, workerCount int) error {
 		return err
 	}
 
-	forever := make(chan bool)
 	for range workerCount {
 		go func() {
 			for task := range tasks {
@@ -81,7 +80,6 @@ func (c *Consumer) Listen(ctx context.Context, workerCount int) error {
 			}
 		}()
 	}
-	<-forever
 	return nil
 }
 

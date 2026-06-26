@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"os"
+	"os/signal"
 	"vecss/internal/mq"
 
 	"vecss/internal/vts"
@@ -38,6 +40,16 @@ func main() {
 	t := vts.FFMpegTranscoder{}
 	con := vts.NewConsumer(rbmq, &t, s3Repo)
 
-	con.Listen(context.TODO(), NUM_WORKERS)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
+	if err := con.Listen(ctx, NUM_WORKERS); err != nil {
+		log.Fatalf("Failed to start consumer: %v", err)
+	}
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+
+	<-stop
+	log.Println("Shutting down gracefully...")
 }
