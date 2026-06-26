@@ -115,7 +115,7 @@ func (repo *S3Repository) CombineMultiPartUploads(ctx context.Context, input dom
 	return nil
 }
 
-func (repo *S3Repository) GetObjecPresigntUrl(ctx context.Context, key string) (string, error) {
+func (repo *S3Repository) GetObjecPresignedUrl(ctx context.Context, key string) (string, error) {
 	res, err := repo.PresignClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(AWS_BUCKET),
 		Key:    aws.String(key),

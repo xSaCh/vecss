@@ -21,7 +21,7 @@ func (h *Handler) combineFile(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	url, err := h.storage.GetObjecPresigntUrl(r.Context(), cbn.Key)
+	url, err := h.storage.GetObjecPresignedUrl(r.Context(), cbn.Key)
 	if err != nil {
 		return err
 	}
