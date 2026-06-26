@@ -17,9 +17,11 @@ func InitRouters(storage storage.Storage, emitter mq.Emitter) http.Handler {
 	// Middlewares
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
-	router.Use(func(h http.Handler) http.Handler {
+	router.Use(middleware.StripSlashes)
+	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			res.Header().Set("Content-Type", "application/json")
+			next.ServeHTTP(res, req)
 		})
 	})
 
